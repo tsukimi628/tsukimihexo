@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"tsukimi628.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="源码层面源码通过monorepo的形式来管理源码Mono:单个主要是将许多项目的代码存储在同一个repository中目的是保持多个包互相独立，但可以有自己的功能逻辑、单元测试等，同时又属同一个仓库下方便管理，模块划分更加清晰、可维护性、可扩展性更强 源码使用typescript进行重写vue2使用flow进行类型检查vue3对ts支持更好了 性能层面vue3使用proxy进行数据劫持vue2的d">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue3带来的新变化">
+<meta property="og:url" content="http://tsukimi628.github.io/2022/07/20/Vue3%E5%B8%A6%E6%9D%A5%E7%9A%84%E6%96%B0%E5%8F%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="Tsukimi">
+<meta property="og:description" content="源码层面源码通过monorepo的形式来管理源码Mono:单个主要是将许多项目的代码存储在同一个repository中目的是保持多个包互相独立，但可以有自己的功能逻辑、单元测试等，同时又属同一个仓库下方便管理，模块划分更加清晰、可维护性、可扩展性更强 源码使用typescript进行重写vue2使用flow进行类型检查vue3对ts支持更好了 性能层面vue3使用proxy进行数据劫持vue2的d">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-20T07:28:19.000Z">
+<meta property="article:modified_time" content="2022-07-20T08:22:26.316Z">
+<meta property="article:author" content="tsukimi">
+<meta property="article:tag" content="vue3">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://tsukimi628.github.io/2022/07/20/Vue3%E5%B8%A6%E6%9D%A5%E7%9A%84%E6%96%B0%E5%8F%98%E5%8C%96/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Vue3带来的新变化 | Tsukimi</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Tsukimi</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://tsukimi628.github.io/2022/07/20/Vue3%E5%B8%A6%E6%9D%A5%E7%9A%84%E6%96%B0%E5%8F%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="tsukimi">
+      <meta itemprop="description" content="前端点滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tsukimi">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Vue3带来的新变化
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-07-20 15:28:19 / 修改时间：16:22:26" itemprop="dateCreated datePublished" datetime="2022-07-20T15:28:19+08:00">2022-07-20</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="源码层面"><a href="#源码层面" class="headerlink" title="源码层面"></a>源码层面</h2><h4 id="源码通过monorepo的形式来管理源码"><a href="#源码通过monorepo的形式来管理源码" class="headerlink" title="源码通过monorepo的形式来管理源码"></a>源码通过monorepo的形式来管理源码</h4><p>Mono:单个<br>主要是将许多项目的代码存储在同一个repository中<br>目的是保持多个包互相独立，但可以有自己的功能逻辑、单元测试等，同时又属同一个仓库下方便管理，模块划分更加清晰、可维护性、可扩展性更强</p>
+<h4 id="源码使用typescript进行重写"><a href="#源码使用typescript进行重写" class="headerlink" title="源码使用typescript进行重写"></a>源码使用typescript进行重写</h4><p>vue2使用flow进行类型检查<br>vue3对ts支持更好了</p>
+<h2 id="性能层面"><a href="#性能层面" class="headerlink" title="性能层面"></a>性能层面</h2><h4 id="vue3使用proxy进行数据劫持"><a href="#vue3使用proxy进行数据劫持" class="headerlink" title="vue3使用proxy进行数据劫持"></a>vue3使用proxy进行数据劫持</h4><pre><code>vue2的defineProperty
+</code></pre>
+<h4 id="移除部分api"><a href="#移除部分api" class="headerlink" title="移除部分api"></a>移除部分api</h4><pre><code>实例上：$on $once $off
+特性：filter 内联模板
+</code></pre>
+<h4 id="编译优化"><a href="#编译优化" class="headerlink" title="编译优化"></a>编译优化</h4><p>生成Block tree、slot编译优化、diff算法优化</p>
+<h2 id="新的api"><a href="#新的api" class="headerlink" title="新的api"></a>新的api</h2><h4 id="composition-api"><a href="#composition-api" class="headerlink" title="composition api"></a>composition api</h4><h4 id="hooks函数增加代码的复用性"><a href="#hooks函数增加代码的复用性" class="headerlink" title="hooks函数增加代码的复用性"></a>hooks函数增加代码的复用性</h4><pre><code>vue2中通过mixins实现共享组件逻辑，其缺陷是会存在命名冲突的问题，到了vue3，可以通过hooks函数实现抽取共享逻辑，并可以做到响应式
+</code></pre>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/vue3/" rel="tag"># vue3</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/20/requestAnimationFrame/" rel="prev" title="requestAnimationFrame">
+      <i class="fa fa-chevron-left"></i> requestAnimationFrame
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/20/MVC-vs-MVVM/" rel="next" title="MVC vs MVVM">
+      MVC vs MVVM <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%B1%82%E9%9D%A2"><span class="nav-number">1.</span> <span class="nav-text">源码层面</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E9%80%9A%E8%BF%87monorepo%E7%9A%84%E5%BD%A2%E5%BC%8F%E6%9D%A5%E7%AE%A1%E7%90%86%E6%BA%90%E7%A0%81"><span class="nav-number">1.0.1.</span> <span class="nav-text">源码通过monorepo的形式来管理源码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E4%BD%BF%E7%94%A8typescript%E8%BF%9B%E8%A1%8C%E9%87%8D%E5%86%99"><span class="nav-number">1.0.2.</span> <span class="nav-text">源码使用typescript进行重写</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E5%B1%82%E9%9D%A2"><span class="nav-number">2.</span> <span class="nav-text">性能层面</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#vue3%E4%BD%BF%E7%94%A8proxy%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%8A%AB%E6%8C%81"><span class="nav-number">2.0.1.</span> <span class="nav-text">vue3使用proxy进行数据劫持</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A7%BB%E9%99%A4%E9%83%A8%E5%88%86api"><span class="nav-number">2.0.2.</span> <span class="nav-text">移除部分api</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96"><span class="nav-number">2.0.3.</span> <span class="nav-text">编译优化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%B0%E7%9A%84api"><span class="nav-number">3.</span> <span class="nav-text">新的api</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#composition-api"><span class="nav-number">3.0.1.</span> <span class="nav-text">composition api</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hooks%E5%87%BD%E6%95%B0%E5%A2%9E%E5%8A%A0%E4%BB%A3%E7%A0%81%E7%9A%84%E5%A4%8D%E7%94%A8%E6%80%A7"><span class="nav-number">3.0.2.</span> <span class="nav-text">hooks函数增加代码的复用性</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">tsukimi</p>
+  <div class="site-description" itemprop="description">前端点滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tsukimi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/assets/hijiki.model.json"},"display":{"position":"right","width":170,"height":330},"mobile":{"show":true},"react":{"opacity":1},"log":false});</script></body>
+</html>
